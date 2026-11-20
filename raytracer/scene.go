@@ -70,6 +70,10 @@ type Scene struct {
 	ShortRadius    float64
 	InputFilename  string
 	OutputFilename string
+	// lens is the optional thin lens (depth of field) camera. It is nil when
+	// depth of field is disabled or the aperture is zero, which leaves the
+	// original pinhole code path completely untouched.
+	lens *LensCamera
 }
 
 // Init scene.

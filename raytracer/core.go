@@ -65,6 +65,11 @@ func Render(scene *Scene, left, right, top, bottom, percent int, size *string) e
 	}
 
 	log.Printf("Start rendering scene\n")
+	lens, err := configureLensCamera(scene)
+	if err != nil {
+		return err
+	}
+	scene.lens = lens
 	scene.prepare(width, height)
 	start := time.Now()
 

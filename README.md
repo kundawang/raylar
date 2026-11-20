@@ -19,6 +19,7 @@ install: _you need golang to install_
 - [x] Bump Mapping
 - [x] Alpha Channel
 - [X] Environment Map
+- [x] Depth of field (thin lens camera)
 
 ## Stages of rendering (without Caustics)
 
@@ -47,6 +48,33 @@ install: _you need golang to install_
 ![residential](https://www.16x4.com/residental.png)
 
 ![metro_int](https://www.16x4.com/mmetro.png)
+
+## Depth of field
+
+The camera can be switched from a pinhole to a thin lens model. Each pixel
+fires `dof_samples` rays from points sampled uniformly over a circular lens of
+radius `aperture`; every ray is aimed at the point where the original pinhole
+ray intersects the focus plane, so objects on that plane stay sharp while
+nearer and farther objects blur by their circle of confusion.
+
+Configuration in `config.json` (or via matching command line flags):
+
+| Key | Meaning |
+| --- | --- |
+| `depth_of_field` | Enable the lens camera. `false` (or `aperture: 0`) renders the original pinhole image, unchanged. |
+| `aperture` | Lens radius in world units. Must be finite and non-negative. |
+| `focal_distance` | Distance from the camera position to the focus plane; must be a finite positive number. |
+| `dof_samples` | Rays emitted per pixel, between 1 and 1024. One sample is the pinhole ray. |
+| `dof_seed` | Fixed seed for the deterministic lens RNG. The same seed and scene reproduce the same image; lens randomness never consumes the global random stream. |
+
+Example:
+
+    raylar --dof --aperture 0.4 --focal-distance 8 --dof-samples 32 --dof-seed 42 scene.json
+
+Invalid parameters (non-finite or negative aperture, non-positive focal
+distance, out-of-range sample counts, or a degenerate camera orientation)
+fail the render with an explicit error instead of producing a broken image.
+
 
 
 ## Happy Buddha Example (1088700 triangles in 1h55m37s 3200x1800 in January 2020, only 9 minutes in March 2020)

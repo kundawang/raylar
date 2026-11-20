@@ -20,7 +20,16 @@ func renderPixel(scene *Scene, x, y int) {
 	bestHit = scene.Pixels[x][y].WorldLocation
 
 	pixel.Depth = bestHit.Dist
-	pixel.Color = bestHit.render(scene, 0)
+	if scene.lens != nil {
+		// Thin lens: average rays sampled on the aperture that converge on
+		// the focus plane. The stored pinhole hit only keeps its depth and
+		// still drives the original edge-detection semantics.
+		baseDir := screenToWorld(x, y, scene.Width, scene.Height,
+			scene.Cameras[0].Position, *scene.Cameras[0].Projection, scene.Cameras[0].view)
+		pixel.Color = averageLensRays(scene, baseDir, x, y)
+	} else {
+		pixel.Color = bestHit.render(scene, 0)
+	}
 
 	if bestHit.Triangle != nil {
 		if GlobalConfig.RenderReflections && bestHit.Triangle.Material.Glossiness > 0 {

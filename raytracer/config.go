@@ -30,9 +30,17 @@ type Config struct {
 	RenderReflections        bool    `json:"render_reflections"`
 	RenderRefractions        bool    `json:"render_refractions"`
 	SamplerLimit             int     `json:"sampler_limit"`
-	TransparentColor         Vector  `json:"transparent_color"`
-	Width                    int     `json:"width"`
-	Percentage               int
+	// Depth of field (thin lens camera). Disabled by default; when enabled
+	// with a zero aperture the renderer is byte-identical to the pinhole path.
+	DepthOfField  bool    `json:"depth_of_field"`
+	Aperture      float64 `json:"aperture"`
+	FocalDistance float64 `json:"focal_distance"`
+	DOFSamples    int     `json:"dof_samples"`
+	DOFSeed       int64   `json:"dof_seed"`
+
+	TransparentColor Vector `json:"transparent_color"`
+	Width            int    `json:"width"`
+	Percentage       int
 }
 
 // DEFAULT configuration parameters.
@@ -64,6 +72,11 @@ var DEFAULT = Config{
 	SamplerLimit:             16,
 	TransparentColor:         Vector{0, 0, 0, 0},
 	Width:                    1600,
+	DepthOfField:             false,
+	Aperture:                 0,
+	FocalDistance:            10,
+	DOFSamples:               16,
+	DOFSeed:                  1,
 }
 
 // GlobalConfig is reachable from all app context

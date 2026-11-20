@@ -22,6 +22,15 @@ func getPixel(scene *Scene, x, y int) Vector {
 		yi := int(math.Floor(float64(n)/float64(8))) + (y * 8) - 4
 		xi := (n % 8) + (x * 8) - 4
 		rayDir := screenToWorld(xi, yi, sw, sh, observer.Position, *observer.Projection, observer.view)
+		if scene.lens != nil {
+			// Depth of field keeps the original antialiasing semantics: each
+			// jittered subpixel is one equally weighted sample, but every
+			// subpixel ray goes through the lens instead of the pinhole.
+			render := averageLensRays(scene, rayDir, xi, yi)
+			totalColor = addVector(totalColor, render)
+			totalHits += 1.0
+			continue
+		}
 		hit := raycastSceneIntersect(scene, scene.Cameras[0].Position, rayDir)
 		render := hit.render(scene, 0)
 		totalColor = addVector(totalColor, render)
